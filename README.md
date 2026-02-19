@@ -2,6 +2,7 @@
 
 Parallel monitor and record Livestream on w.tv
 Bash. Using ffmpeg, curl, jq
+Record in current directory.
 
 ### Requirements:
 ```
@@ -20,3 +21,9 @@ Can change interval check, in seconds
 ```
 CHECK_INTERVAL=8
 ```   
+
+## Start:
+```
+chmod +x record_w-tv.sh
+./w-tv.sh
+```
