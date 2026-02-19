@@ -1,8 +1,10 @@
 # Livestream Recorder W.tv
 
-Parallel monitor and record Livestream on w.tv
-Bash. Using ffmpeg, curl, jq
-Record in current directory.
+Parallel monitor and record Livestream on w.tv.
+
+Bash. Using ffmpeg, curl, jq.
+
+Record in current directory there is script.
 
 ### Requirements:
 ```
