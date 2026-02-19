@@ -9,7 +9,8 @@ sudo apt install -y curl jq ffmpeg
 ```
 
 Change variables user1 and user2 to yours
-```CHANNEL_NICKNAMES=(
+```
+CHANNEL_NICKNAMES=(
   "user1"
   "user2"
 )
