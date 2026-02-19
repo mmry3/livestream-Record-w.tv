@@ -9,7 +9,8 @@ Record in current directory.
 sudo apt install -y curl jq ffmpeg
 ```
 
-Change variables user1 and user2 to yours
+Change variables _user1_ and _user2_ to yours.
+Can comment user2, for example, to monitor one user.
 ```
 CHANNEL_NICKNAMES=(
   "user1"
@@ -17,7 +18,7 @@ CHANNEL_NICKNAMES=(
 )
 ```
 
-Can change interval check, in seconds
+Can change interval check, in seconds.
 ```
 CHECK_INTERVAL=8
 ```   
