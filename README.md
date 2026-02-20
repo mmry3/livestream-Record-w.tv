@@ -10,23 +10,14 @@ Record in current directory there is script.
 ```
 sudo apt install -y curl jq ffmpeg
 ```
-
-Change variables _user1_ and _user2_ to yours.
-Can comment user2, for example, to monitor one user.
-```
-CHANNEL_NICKNAMES=(
-  "user1"
-  "user2"
-)
-```
-
 Can change interval check, in seconds.
 ```
 CHECK_INTERVAL=8
 ```   
 
-## Start:
+### Usage:
+```
 ```
 chmod +x record_w-tv.sh
-./w-tv.sh
+./record_w-tv.sh nickname1,nickname2,nickname3
 ```
