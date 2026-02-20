@@ -2,12 +2,16 @@
 #!/usr/bin/env bash
 set -u
 
-# Change user1 and user2 to yours
-# Can comment user2 just to record one user
-CHANNEL_NICKNAMES=(
-  "user1"
-  "user2"
-)
+# Channels passed as ./record_w-tv.sh nickname1,nickname2,nickname3
+if [[ -n "${1:-}" ]]; then
+  INPUT_CHANNELS="$1"
+else
+  echo "Usage:"
+  echo "  $0 nickname1,nickname2,nickname3"
+  exit 1
+fi
+
+IFS=',' read -ra CHANNEL_NICKNAMES <<< "$INPUT_CHANNELS"
 
 # Change interval check, in seconds
 CHECK_INTERVAL=8   
