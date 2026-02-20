@@ -56,10 +56,13 @@ start_ffmpeg() {
   log "$logfile" "URL   | ${playback}"
   log "$logfile" "FILE  | ${outfile}"
 
+  echo "$(date '+%Y-%m-%d %H:%M:%S') | START | ${nickname} | recording to ${outfile}"
+
   ffmpeg \
     -hide_banner \
-    -loglevel error \
+    -loglevel warning \
     -stats \
+    -stats_period 1400 \
     -i "$playback" \
     -c copy \
     "$outfile" \
@@ -127,6 +130,8 @@ while true; do
       pid="${CHANNEL_PID[$userid]}"
 
       log "$logfile" "STOP | Stream ended"
+
+      echo "$(date '+%Y-%m-%d %H:%M:%S') | STOP  | ${nickname} | recording ended"
 
       if kill -0 "$pid" 2>/dev/null; then
         kill "$pid"
