@@ -61,6 +61,8 @@ start_ffmpeg() {
   ffmpeg \
     -hide_banner \
     -loglevel warning \
+    -fflags +genpts+discardcorrupt \
+    -err_detect ignore_err \
     -stats \
     -stats_period 1400 \
     -i "$playback" \
@@ -109,19 +111,6 @@ while true; do
 
       CHANNEL_STREAMID["$userid"]="$streamid"
       start_ffmpeg "$userid" "$nickname" "$playback"
-    fi
-
-    # AUTO-RECONNECT
-    if [[ "$live" == "true" && "${CHANNEL_RECORDING[$userid]}" -eq 1 ]]; then
-      pid="${CHANNEL_PID[$userid]}"
-
-      if ! kill -0 "$pid" 2>/dev/null; then
-        logfile="${CHANNEL_LOG[$userid]}"
-        log "$logfile" "RESTART | ffmpeg crashed, restarting"
-
-        playback="$(echo "$response" | jq -r '.channel.liveStream.playbackUrl')"
-        start_ffmpeg "$userid" "$nickname" "$playback"
-      fi
     fi
 
     # STREAM END
