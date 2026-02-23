@@ -24,6 +24,11 @@ chmod +x record_w-tv.sh
 ## Powershell:
 Record in current directory there is script.
 
+Can change interval check, in seconds.
+```
+$CHECK_INTERVAL = 3
+```
+
 ### Usage:
 ```
 .\record_w-tv.ps1 -Channels "nickname1,nickname2,nickname3"
