@@ -113,6 +113,19 @@ while true; do
       start_ffmpeg "$userid" "$nickname" "$playback"
     fi
 
+    # AUTO-RECONNECT
+    if [[ "$live" == "true" && "${CHANNEL_RECORDING[$userid]}" -eq 1 ]]; then
+      pid="${CHANNEL_PID[$userid]}"
+
+      if ! kill -0 "$pid" 2>/dev/null; then
+        logfile="${CHANNEL_LOG[$userid]}"
+        log "$logfile" "RESTART | ffmpeg crashed, restarting"
+
+        playback="$(echo "$response" | jq -r '.channel.liveStream.playbackUrl')"
+        start_ffmpeg "$userid" "$nickname" "$playback"
+      fi
+    fi
+
     # STREAM END
     if [[ "$live" == "false" && "${CHANNEL_RECORDING[$userid]}" -eq 1 ]]; then
       logfile="${CHANNEL_LOG[$userid]}"
