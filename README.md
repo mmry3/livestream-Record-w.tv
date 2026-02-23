@@ -1,7 +1,7 @@
 # Livestream Recorder W.tv
-# Parallel monitor and record Livestream on w.tv.
+Parallel monitor and record Livestream on w.tv.
 
-##Linux:
+## Linux:
 Bash. Using ffmpeg, curl, jq.
 Record in current directory there is script.
 
@@ -21,10 +21,10 @@ chmod +x record_w-tv.sh
 ./record_w-tv.sh nickname1,nickname2,nickname3
 ```
 
-##Powershell:
+## Powershell:
 Record in current directory there is script.
 
-###Usage:
+### Usage:
 ```
 .\record_w-tv.ps1 -Channels "nickname1,nickname2,nickname3"
 ```
