@@ -20,7 +20,7 @@ function Write-Log {
     param([string]$LogFile, [string]$Text)
     $timestamp = Get-Date -Format 'yyyy-MM-dd HH-mm-ss'
     $line = "$timestamp | $Text"
-    # Use a StreamWriter so we never conflict with ffmpeg's handle
+
     $sw = [System.IO.StreamWriter]::new($LogFile, $true, [System.Text.Encoding]::UTF8)
     try { $sw.WriteLine($line) } finally { $sw.Close() }
 }
@@ -113,8 +113,8 @@ function Stop-AllRecordings {
         if (Test-ProcessRunning $proc) {
             $nickname = $channelNickname[$userId]
             $logFile  = $channelLog[$userId]
-            Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | STOP | $nickname | killing ffmpeg pid=$($proc.Id)"
-            if ($logFile) { Write-Log $logFile "SHUTDOWN | killed by user" }
+            Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | STOP   | $nickname | killing ffmpeg pid=$($proc.Id)"
+            if ($logFile) { Write-Log $logFile "SHUTDOWN | killed by user (Ctrl+C)" }
             $proc.Kill()
             $proc.WaitForExit(5000) | Out-Null
         }
@@ -132,7 +132,7 @@ while ($true) {
         try {
             $response = Invoke-RestMethod -Uri $apiUrl -TimeoutSec 10 -ErrorAction Stop
         } catch {
-            Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN | $nickname | API error: $_"
+            Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN  | $nickname | API error: $_"
             continue
         }
 
@@ -144,12 +144,12 @@ while ($true) {
             try {
                 $response = Invoke-RestMethod -Uri $apiUrl -TimeoutSec 10 -ErrorAction Stop
             } catch {
-                Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN | $nickname | re-fetch failed: $_"
+                Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN  | $nickname | re-fetch failed: $_"
                 continue
             }
             $playbackUrl = $response.channel.liveStream.playbackUrl
             if ([string]::IsNullOrWhiteSpace($playbackUrl)) {
-                Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN | $nickname | playbackUrl empty, will retry"
+                Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN  | $nickname | playbackUrl empty, will retry"
                 continue
             }
             $channelStreamId[$userId] = $response.channel.liveStream.streamId
@@ -179,7 +179,7 @@ while ($true) {
 
             Write-Log $logFile "STOP | Stream ended"
             $ts = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-            Write-Host "$ts | STOP | $nickname | recording ended"
+            Write-Host "$ts | STOP  | $nickname | recording ended"
 
             if (Test-ProcessRunning $proc) { $proc.Kill() }
 
