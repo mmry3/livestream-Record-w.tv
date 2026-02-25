@@ -1,4 +1,5 @@
 ## Requirements: ffmpeg
+
 param(
     [Parameter(Mandatory)]
     [string]$Channels
@@ -10,13 +11,14 @@ $SCRIPT_DIR = $PWD.Path
 $channelNickname  = @{}
 $channelRecording = @{}
 $channelPid       = @{}
-$channelLog       = @{}
+$channelLog       = @{}   # our script events  → <name>_events.log
 $channelStreamId  = @{}
 
 function Write-Log {
     param([string]$LogFile, [string]$Text)
     $timestamp = Get-Date -Format 'yyyy-MM-dd HH-mm-ss'
     $line = "$timestamp | $Text"
+    # Use a StreamWriter so we never conflict with ffmpeg's handle
     $sw = [System.IO.StreamWriter]::new($LogFile, $true, [System.Text.Encoding]::UTF8)
     try { $sw.WriteLine($line) } finally { $sw.Close() }
 }
@@ -38,7 +40,7 @@ function Start-Ffmpeg {
 
     $timestamp  = Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'
     $outFile    = Join-Path $SCRIPT_DIR "${Nickname}-w-tv-${timestamp}.ts"
-
+    # Two separate files: script events and raw ffmpeg stderr
     $logFile    = Join-Path $SCRIPT_DIR "${Nickname}-w-tv-${timestamp}_events.log"
     $ffmpegLog  = Join-Path $SCRIPT_DIR "${Nickname}-w-tv-${timestamp}_ffmpeg.log"
 
@@ -81,7 +83,9 @@ function Test-ProcessRunning {
     try { return -not $Proc.HasExited } catch { return $false }
 }
 
+# ---------------------------------------------------------------------------
 # Resolve channels
+# ---------------------------------------------------------------------------
 $channelNicknames = $Channels -split ','
 
 Write-Host "Resolving channels..."
@@ -109,7 +113,7 @@ while ($true) {
         try {
             $response = Invoke-RestMethod -Uri $apiUrl -TimeoutSec 10 -ErrorAction Stop
         } catch {
-            Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN | $nickname | API error: $_"
+            Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN  | $nickname | API error: $_"
             continue
         }
 
@@ -117,18 +121,34 @@ while ($true) {
 
         # STREAM START
         if ($live -eq $true -and $channelRecording[$userId] -eq $false) {
-            Start-Sleep -Seconds 2
-            $playbackUrl              = $response.channel.liveStream.playbackUrl
+            Start-Sleep -Seconds 2  # let stream stabilize, then re-fetch
+            try {
+                $response = Invoke-RestMethod -Uri $apiUrl -TimeoutSec 10 -ErrorAction Stop
+            } catch {
+                Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN  | $nickname | re-fetch failed: $_"
+                continue
+            }
+            $playbackUrl = $response.channel.liveStream.playbackUrl
+            if ([string]::IsNullOrWhiteSpace($playbackUrl)) {
+                Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN  | $nickname | playbackUrl empty, will retry"
+                continue
+            }
             $channelStreamId[$userId] = $response.channel.liveStream.streamId
             Start-Ffmpeg -UserId $userId -Nickname $nickname -PlaybackUrl $playbackUrl
         }
 
-        # AUTO-RECONNECT (if ffmpeg crashed )
+        # AUTO-RECONNECT (ffmpeg crashed while stream still live)
         elseif ($live -eq $true -and $channelRecording[$userId] -eq $true) {
             if (-not (Test-ProcessRunning $channelPid[$userId])) {
                 $logFile = $channelLog[$userId]
                 Write-Log $logFile "RESTART | ffmpeg crashed, restarting"
                 $playbackUrl = $response.channel.liveStream.playbackUrl
+                if ([string]::IsNullOrWhiteSpace($playbackUrl)) {
+                    Write-Log $logFile "RESTART | playbackUrl empty, will retry next cycle"
+                    $channelRecording[$userId] = $false
+                    $channelPid[$userId]       = $null
+                    continue
+                }
                 Start-Ffmpeg -UserId $userId -Nickname $nickname -PlaybackUrl $playbackUrl
             }
         }
