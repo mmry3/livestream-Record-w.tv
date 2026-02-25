@@ -1,5 +1,6 @@
+#  record_w-tv.ps1
 ## Requirements: ffmpeg
-
+### Usage: 
 param(
     [Parameter(Mandatory)]
     [string]$Channels
@@ -11,14 +12,14 @@ $SCRIPT_DIR = $PWD.Path
 $channelNickname  = @{}
 $channelRecording = @{}
 $channelPid       = @{}
-$channelLog       = @{}   # our script events  → <name>_events.log
+$channelLog       = @{}
 $channelStreamId  = @{}
 
 function Write-Log {
     param([string]$LogFile, [string]$Text)
     $timestamp = Get-Date -Format 'yyyy-MM-dd HH-mm-ss'
     $line = "$timestamp | $Text"
-    # Use a StreamWriter so we never conflict with ffmpeg's handle
+
     $sw = [System.IO.StreamWriter]::new($LogFile, $true, [System.Text.Encoding]::UTF8)
     try { $sw.WriteLine($line) } finally { $sw.Close() }
 }
@@ -40,7 +41,7 @@ function Start-Ffmpeg {
 
     $timestamp  = Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'
     $outFile    = Join-Path $SCRIPT_DIR "${Nickname}-w-tv-${timestamp}.ts"
-    # Two separate files: script events and raw ffmpeg stderr
+
     $logFile    = Join-Path $SCRIPT_DIR "${Nickname}-w-tv-${timestamp}_events.log"
     $ffmpegLog  = Join-Path $SCRIPT_DIR "${Nickname}-w-tv-${timestamp}_ffmpeg.log"
 
@@ -66,7 +67,6 @@ function Start-Ffmpeg {
         $outFile
     )
 
-    # ffmpeg stderr goes to its own file — no lock conflict with Write-Log
     $proc = Start-Process -FilePath 'ffmpeg' `
                           -ArgumentList $ffmpegArgs `
                           -RedirectStandardError $ffmpegLog `
@@ -83,9 +83,7 @@ function Test-ProcessRunning {
     try { return -not $Proc.HasExited } catch { return $false }
 }
 
-# ---------------------------------------------------------------------------
 # Resolve channels
-# ---------------------------------------------------------------------------
 $channelNicknames = $Channels -split ','
 
 Write-Host "Resolving channels..."
@@ -137,7 +135,7 @@ while ($true) {
             Start-Ffmpeg -UserId $userId -Nickname $nickname -PlaybackUrl $playbackUrl
         }
 
-        # AUTO-RECONNECT (ffmpeg crashed while stream still live)
+        # AUTO-RECONNECT (if ffmpeg crashed)
         elseif ($live -eq $true -and $channelRecording[$userId] -eq $true) {
             if (-not (Test-ProcessRunning $channelPid[$userId])) {
                 $logFile = $channelLog[$userId]
