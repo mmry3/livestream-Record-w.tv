@@ -26,7 +26,7 @@ Record in current directory there is script.
 
 Can change interval check, in seconds.
 ```
-$CHECK_INTERVAL = 3
+$CHECK_INTERVAL = 6
 ```
 
 ### Usage:
