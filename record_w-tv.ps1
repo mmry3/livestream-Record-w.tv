@@ -109,7 +109,7 @@ while ($true) {
         try {
             $response = Invoke-RestMethod -Uri $apiUrl -TimeoutSec 10 -ErrorAction Stop
         } catch {
-            Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN  | $nickname | API error: $_"
+            Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | WARN | $nickname | API error: $_"
             continue
         }
 
@@ -123,7 +123,7 @@ while ($true) {
             Start-Ffmpeg -UserId $userId -Nickname $nickname -PlaybackUrl $playbackUrl
         }
 
-        # AUTO-RECONNECT (ffmpeg crashed while stream still live)
+        # AUTO-RECONNECT (if ffmpeg crashed )
         elseif ($live -eq $true -and $channelRecording[$userId] -eq $true) {
             if (-not (Test-ProcessRunning $channelPid[$userId])) {
                 $logFile = $channelLog[$userId]
