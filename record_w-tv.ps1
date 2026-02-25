@@ -1,3 +1,4 @@
+## Requirements: ffmpeg
 param(
     [Parameter(Mandatory)]
     [string]$Channels
