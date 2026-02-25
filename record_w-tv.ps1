@@ -5,7 +5,7 @@ param(
     [string]$Channels
 )
 
-$CHECK_INTERVAL = 3
+$CHECK_INTERVAL = 6
 $SCRIPT_DIR = $PWD.Path
 
 $channelNickname  = @{}
