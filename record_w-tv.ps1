@@ -1,6 +1,7 @@
 #  record_w-tv.ps1
 ## Requirements: ffmpeg
-### Usage: 
+### Usage: .\record_w-tv.ps1 -Channels "nickname1,nickname2,nickname3"
+
 param(
     [Parameter(Mandatory)]
     [string]$Channels
