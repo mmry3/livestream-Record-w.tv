@@ -1,16 +1,15 @@
 # Livestream Recorder W.tv
-Parallel monitor and record Livestream on w.tv.
+Monitor and records Livestreams on w.tv.
 
 ## Linux:
-Bash. Using ffmpeg, curl, jq.
-Record in current directory there is script.
+Record in current directory where is script.
 
 #### Requirements:
 ```
 sudo apt install -y curl jq ffmpeg
 ```
 
-Can change interval check, in seconds.
+Interval check, in seconds.
 ```
 CHECK_INTERVAL=8
 ```
@@ -22,9 +21,9 @@ chmod +x record_w-tv.sh
 ```
 
 ## Powershell:
-Record in current directory there is script.
+Record in current directory where is script.
 
-Can change interval check, in seconds.
+Interval check, in seconds.
 ```
 $CHECK_INTERVAL = 6
 ```
